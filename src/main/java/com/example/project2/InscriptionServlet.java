@@ -27,7 +27,7 @@ public class InscriptionServlet extends HttpServlet {
             String jdbcUrl = "jdbc:oracle:thin:@//localhost:1521/hr"; // Assurez-vous d'ajuster le port et le nom de la base de données HR
 
             // Établir la connexion
-            connection = DriverManager.getConnection(jdbcUrl, "votre_utilisateur", "votre_mot_de_passe"); // Remplacez par votre nom d'utilisateur et mot de passe
+            connection = DriverManager.getConnection(jdbcUrl, "votre_mail", "votre_mot_de_passe"); // Remplacez par votre nom d'utilisateur et mot de passe
 
             // Requête d'insertion pour insérer les données du client dans la table HR.CLIENTS (exemple)
             String insertQuery = "INSERT INTO HR.CLIENTS (NumClient, NomClient, PrenClient, MailClient, TelClient, MotDePasse) VALUES (?, ?, ?, ?, ?, ?)";
@@ -49,7 +49,7 @@ public class InscriptionServlet extends HttpServlet {
                 response.sendRedirect("index.jsp");
             } else {
                 // Gérer l'échec de l'insertion
-                // ...
+                response.sendRedirect("inscription.jsp");
             }
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace(); // Gérer les exceptions appropriées
