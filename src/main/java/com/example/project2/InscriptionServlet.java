@@ -1,61 +1,69 @@
 package com.example.project2;
 
-import java.io.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.sql.*;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
+@WebServlet(name = "", value = "/inscription")
 public class InscriptionServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String numClient = request.getParameter("numClient");
+        String nomClient = request.getParameter("nomClient");
+        String prenClient = request.getParameter("prenClient");
+        String mailClient = request.getParameter("mailClient");
+        String telClient = request.getParameter("telClient");
+        String motDePasse = request.getParameter("motDePasse");
 
-    // Méthode doPost pour gérer les requêtes POST
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Récupérer les paramètres du formulaire
-        String nom = request.getParameter("NomClient");
-        String prenom = request.getParameter("PrenClient");
-        String mail = request.getParameter("MailClient");
-        String tel = request.getParameter("TelClient");
-        String motDePasse = request.getParameter("MotDePasse");
-
-        // Connection à la base de données Oracle
-        String jdbcURL = "jdbc:oracle:thin:@//localhost:1521/XE"; // Adapter URL, username, password
-        String dbUser = "votre_Mail";
-        String dbPassword = "votre_MotDePasse";
-        Connection connection = new Connection(jdbcURL, dbUser, dbPassword) ;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
 
         try {
+            // Charger le pilote JDBC Oracle
             Class.forName("oracle.jdbc.driver.OracleDriver");
-            connection = DriverManager.getConnection(jdbcURL, dbUser, dbPassword);
 
-            // Requête SQL pour insérer les données dans la table client
-            String sql = "INSERT INTO hr.client (NumCLient, NomClient, PrenClient, MailClient, TelClient, MotDePasse) VALUES (SEQ_CLIENT.NEXTVAL, ?, ?, ?, ?, ?)";
-            PreparedStatement statement = connection.prepareStatement(sql);
+            // URL de connexion à la base de données Oracle
+            String jdbcUrl = "jdbc:oracle:thin:@//localhost:1521/hr"; // Assurez-vous d'ajuster le port et le nom de la base de données HR
 
-            // Affecter les valeurs aux paramètres de la requête SQL
-            statement.setString(1, nom);
-            statement.setString(2, prenom);
-            statement.setString(3, mail);
-            statement.setString(4, tel);
-            statement.setString(5, motDePasse);
+            // Établir la connexion
+            connection = DriverManager.getConnection(jdbcUrl, "votre_utilisateur", "votre_mot_de_passe"); // Remplacez par votre nom d'utilisateur et mot de passe
+
+            // Requête d'insertion pour insérer les données du client dans la table HR.CLIENTS (exemple)
+            String insertQuery = "INSERT INTO HR.CLIENTS (NumClient, NomClient, PrenClient, MailClient, TelClient, MotDePasse) VALUES (?, ?, ?, ?, ?, ?)";
+
+            // Créer la déclaration préparée
+            preparedStatement = connection.prepareStatement(insertQuery);
+            preparedStatement.setString(1, numClient);
+            preparedStatement.setString(2, nomClient);
+            preparedStatement.setString(3, prenClient);
+            preparedStatement.setString(4, mailClient);
+            preparedStatement.setString(5, telClient);
+            preparedStatement.setString(6, motDePasse);
 
             // Exécuter la requête d'insertion
-            int rowsInserted = statement.executeUpdate();
-            if (rowsInserted > 0) {
-                // Inscription réussie
-                response.sendRedirect("index.jsp"); // Redirection vers une page de confirmation
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            if (rowsAffected > 0) {
+                // Rediriger vers une page de confirmation en cas de succès
+                response.sendRedirect("index.jsp");
             } else {
-                // Échec de l'inscription
-                response.sendRedirect("inscription.jsp"); // Redirection vers une page d'échec
+                // Gérer l'échec de l'insertion
+                // ...
             }
-        } catch (SQLException | ClassNotFoundException ex) {
-            ex.printStackTrace();
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace(); // Gérer les exceptions appropriées
         } finally {
-            // Fermer la connexion à la base de données
+            // Fermer les ressources (connexion, déclaration préparée, etc.)
             try {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
                 if (connection != null) {
                     connection.close();
                 }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace(); // Gérer les exceptions appropriées pour la fermeture des ressources
             }
         }
     }

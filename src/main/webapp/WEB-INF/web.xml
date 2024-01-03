@@ -6,7 +6,7 @@
 
     <servlet>
         <servlet-name>InscriptionServlet</servlet-name>
-        <servlet-class>chemin.vers.votre.package.InscriptionServlet</servlet-class>
+        <servlet-class>/com/example/project2/InscriptionServlet.java</servlet-class>
     </servlet>
 
     <servlet-mapping>
